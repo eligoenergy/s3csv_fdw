@@ -8,7 +8,7 @@ def read(fname):
 
 
 setup(
-    name='S3MulticornFdw',
+    name='S3Fdw',
     version='0.1.0',
     author='Alexander Goldstein',
     author_email='alexg@eligoenergy.com',
