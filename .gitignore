@@ -1,0 +1,6 @@
+DynamodbFdw.egg-info/
+MANIFEST
+UNKNOWN.egg-info/
+dist/
+dump.sql
+build/
