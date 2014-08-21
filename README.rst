@@ -12,6 +12,11 @@ Install multicorn
 ===========================================
 First you need to activate multicorn extension in your pg database
 ::
+    git clone git@github.com:eligoenergy/s3csv_fdw.git
+    cd s3csv_fdw
+    python setup.py install
+Then in Postgres
+::
     CREATE EXTENSION multicorn;
 
 
