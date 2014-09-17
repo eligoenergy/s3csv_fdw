@@ -8,6 +8,7 @@ from multicorn.utils import log_to_postgres, ERROR, WARNING, DEBUG
 import boto
 import csv
 from cStringIO import StringIO
+import gzip
 
 class S3Fdw(ForeignDataWrapper):
     """A foreign data wrapper for accessing csv files.
@@ -23,6 +24,7 @@ class S3Fdw(ForeignDataWrapper):
           Default: ","
         - quotechar or quote : quote separator
         - skip_header or header: if integer, number of lines to skip, if true then 1, else 0
+        - gzip the file is compressed with gzip
     """
 
     def __init__(self, fdw_options, fdw_columns):
@@ -45,6 +47,7 @@ class S3Fdw(ForeignDataWrapper):
                                          fdw_options.get("quote", '"'))
         self.skip_header = int(fdw_options.get('skip_header') or 
                                1 if fdw_options.get('header') in ('T', 'TRUE', 't', 'true') else 0)
+        self.gzip = fdw_options.get('gzip')
         self.columns = fdw_columns
 
     def execute(self, quals, columns):
@@ -56,7 +59,11 @@ class S3Fdw(ForeignDataWrapper):
         key.get_contents_to_file(stream)
         stream.seek(0)
 
-        reader = csv.reader(stream, delimiter=self.delimiter, quotechar=self.quotechar)
+        if self.gzip:
+            reader = csv.reader(gzip.GzipFile(fileobj=stream),
+                                delimiter=self.delimiter, quotechar=self.quotechar)
+        else:
+            reader = csv.reader(stream, delimiter=self.delimiter, quotechar=self.quotechar)
         count = 0
         checked = False
         for line in reader:
