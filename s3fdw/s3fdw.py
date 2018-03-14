@@ -72,8 +72,13 @@ class S3Fdw(ForeignDataWrapper):
                     if len(line) < len(self.columns):
                         log_to_postgres("There are less columns than "
                                         "defined in the table", WARNING)
-                row=line[:len(self.columns)]
-                nulled_row = [v if v else None for v in row]
-                yield nulled_row
+                row = {}
+                for i, (key, value)  in enumerate(self.columns.iteritems()):
+                        column_name = key
+                        if i > len(line) or line[i] == "":
+                                row[column_name] = None
+                        else:
+                                row[column_name] = line[i]
+                yield row
             count += 1
 
