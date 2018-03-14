@@ -5,7 +5,7 @@ An Amazon S3 Foreign Data Wrapper
 from multicorn import ForeignDataWrapper
 from multicorn.utils import log_to_postgres, ERROR, WARNING, DEBUG
 
-import boto
+import boto3
 import csv
 from cStringIO import StringIO
 
@@ -47,12 +47,14 @@ class S3Fdw(ForeignDataWrapper):
         self.columns = fdw_columns
 
     def execute(self, quals, columns):
-        conn = boto.connect_s3(self.aws_access_key, self.aws_secret_key)
-        bucket = conn.get_bucket(self.bucket)
+        s3 = boto3.client(
+            's3',
+            aws_access_key_id=self.aws_access_key,
+            aws_secret_access_key=self.aws_secret_key
+        )
 
         stream = StringIO()
-        key = bucket.get_key(self.filename)
-        key.get_contents_to_file(stream)
+        s3.download_fileobj(self.bucket, self.filename, stream)
         stream.seek(0)
 
         reader = csv.reader(stream, delimiter=self.delimiter, quotechar=self.quotechar)
