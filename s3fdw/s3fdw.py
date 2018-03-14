@@ -15,7 +15,6 @@ class S3Fdw(ForeignDataWrapper):
     Valid options:
         - aws_access_key : AWS access keys
         - aws_secret_key : AWS secret keys
-        - hostname : accepted but ignored
         - bucket or bucketname : bucket in S3
         - filename : full path to the csv file, which must be readable
           with S3 credentials
