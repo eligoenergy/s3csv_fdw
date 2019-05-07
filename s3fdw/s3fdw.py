@@ -9,6 +9,43 @@ import boto
 import csv
 from cStringIO import StringIO
 
+# In at least some cases, bucket names are required to follow subdomain.domain
+# format.
+# Per https://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html
+# Amazon recommends handling this by using custom TLS domain validation logic.
+#
+# Here we do so using a snippet posted by @ykhrustalev on
+# https://github.com/boto/boto/issues/2836
+import ssl
+
+_old_match_hostname = ssl.match_hostname
+
+def remove_dot(host):
+    """
+    >>> remove_dot('a.x.s3-eu-west-1.amazonaws.com')
+    'ax.s3-eu-west-1.amazonaws.com'
+    >>> remove_dot('a.s3-eu-west-1.amazonaws.com')
+    'a.s3-eu-west-1.amazonaws.com'
+    >>> remove_dot('s3-eu-west-1.amazonaws.com')
+    's3-eu-west-1.amazonaws.com'
+    >>> remove_dot('a.x.s3-eu-west-1.example.com')
+    'a.x.s3-eu-west-1.example.com'
+    """
+    if not host.endswith('.amazonaws.com'):
+        return host
+    parts = host.split('.')
+    h = ''.join(parts[:-3])
+    if h:
+        h += '.'
+    return h + '.'.join(parts[-3:])
+
+
+def _new_match_hostname(cert, hostname):
+    return _old_match_hostname(cert, remove_dot(hostname))
+
+
+ssl.match_hostname = _new_match_hostname
+
 class S3Fdw(ForeignDataWrapper):
     """A foreign data wrapper for accessing csv files.
 
