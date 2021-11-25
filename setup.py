@@ -16,5 +16,5 @@ setup(
     url='https://github.com/eligoenergy/s3csv_fdw',
     license='LICENSE.txt',
     description='Postgresql Foregin Data Wrapper mapping Amazon S3',
-    install_requires=["boto"],
+    install_requires=["boto3"],
 )
