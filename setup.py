@@ -9,12 +9,12 @@ def read(fname):
 
 setup(
     name='S3Fdw',
-    version='0.1.0',
+    version='0.2.0',
     author='Alexander Goldstein',
     author_email='alexg@eligoenergy.com',
     packages=['s3fdw'],
     url='https://github.com/eligoenergy/s3csv_fdw',
     license='LICENSE.txt',
     description='Postgresql Foregin Data Wrapper mapping Amazon S3',
-    install_requires=["boto"],
+    install_requires=["boto3"],
 )
